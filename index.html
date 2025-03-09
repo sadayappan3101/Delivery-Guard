@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Workforce App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to bottom right, #e0f7fa, #f0f4f8);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        h1, h2, h3 {
+            color: #00796b;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #00796b;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #00695c;
+            transform: scale(1.05);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        .feature-card {
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .food-prep {
+            background-color: #e0f2f1;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 10px 0;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .personal-info {
+            background-color: #ffe0b2;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            margin: 10px 0;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sos-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .sos-button button {
+            background-color: red;
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            border-radius: 50%;
+            border: none;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .sos-button button:hover {
+            background-color: darkred;
+            transform: scale(1.05);
+        }
+
+        /* Tab styles */
+        .tab {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .tab button {
+            flex: 1;
+            margin: 0 5px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #e0f2f1;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .tab button:hover {
+            background-color: #b2dfdb;
+        }
+
+        /* Scrollable area */
+        .scrollable {
+            max-height: 400px; /* Set maximum height for scrolling */
+            overflow-y: auto; /* Enable vertical scrolling */
+            padding-right: 10px; /* Padding for scrollbar */
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .active {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        /* Media Queries for Mobile */
+        @media (max-width: 768px) {
+            body {
+                padding: 0 10px;
+            }
+
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Start Screen -->
+    <div class="screen active" id="start-screen">
+        <h1>Delivery Workforce App</h1>
+        <button onclick="startApp()">Start</button>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="screen" id="login-screen">
+        <h2>Login</h2>
+        <input type="text" id="userId" placeholder="User ID" />
+        <input type="text" id="phoneNumber" placeholder="Phone Number" />
+        <button onclick="sendOTP()">Send OTP</button>
+        <input type="text" id="otp" placeholder="Enter OTP" style="display:none;" />
+        <button id="login-btn" onclick="verifyOTP()" style="display:none;">Login</button>
+    </div>
+
+    <!-- Main Screen -->
+    <div class="screen" id="main-screen">
+        <h2>Welcome to the Dashboard</h2>
+
+        <!-- Tab Navigation -->
+        <div class="tab">
+            <button onclick="showTab('health')">Health Monitoring</button>
+            <button onclick="showTab('earnings')">Earnings & Targets</button>
+            <button onclick="showTab('services')">Services</button>
+        </div>
+
+        <!-- Scrollable Area for Features -->
+        <div class="scrollable">
+
+            <!-- Health Monitoring Tab -->
+            <div class="feature-card active" id="health-tab">
+                <h3>Heart Rate Monitoring</h3>
+                <p>Heart Rate: <span id="heart-rate">--</span> bpm</p>
+                <h3>Hydration Level: <span id="hydration">--</span>%</h3>
+                <button onclick="checkHealth()">Check Body Conditions</button>
+            </div>
+
+            <!-- Earnings & Targets Tab -->
+            <div class="feature-card" id="earnings-tab">
+                <h3>Weekly Target</h3>
+                <p>Enter your weekly target amount:</p>
+                <input type="number" id="weekly-target-input" placeholder="Set Target Amount" />
+                <button onclick="setWeeklyTarget()">Set Target</button>
+                <p id="weekly-earnings-info">Weekly Earnings: ₹<span id="weekly-earnings">0</span> / ₹<span id="weekly-target">--</span></p>
+                <h3>Earnings</h3>
+                <p>Today's Earnings: ₹1500</p>
+                <button onclick="addToWeeklyEarnings(1500)">Add to Weekly Earnings</button>
+            </div>
+
+            <!-- Services Tab -->
+            <div class="feature-card" id="services-tab">
+                <h3>Customer Care</h3>
+                <button onclick="alert('Calling customer care...')">Contact Customer Care</button>
+                <div class="food-prep">
+                    <h3>Food Preparation Time</h3>
+                    <p>Estimated Time: 15 minutes</p>
+                </div>
+                <div class="personal-info">
+                    <h3>Personal Information</h3>
+                    <p>Name: <span id="display-name">--</span></p>
+                    <p>Date of Birth: <span id="display-dob">--</span></p>
+                    <p>User ID: <span id="display-userId">--</span></p>
+                    <p>Phone Number: <span id="display-phoneNumber">--</span></p>
+                </div>
+                <div>
+                    <h3>Chatbot</h3>
+                    <input type="text" id="chat-message" placeholder="Type your message..." />
+                    <button onclick="sendMessage()">Send</button>
+                    <pre id="chatbot-response" style="white-space: pre-wrap;"></pre>
+                </div>
+            </div>
+
+        </div> <!-- End of Scrollable Area -->
+
+        <!-- SOS Button -->
+        <div class="sos-button">
+            <button onclick="sendSOS()">SOS</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let userId, phoneNumber, name, dob;
+    let weeklyTarget = 0;
+    let weeklyEarnings = 0;
+
+    function startApp() {
+        document.getElementById('start-screen').classList.remove('active');
+        document.getElementById('login-screen').classList.add('active');
+    }
+
+    function sendOTP() {
+        userId = document.getElementById('userId').value;
+        phoneNumber = document.getElementById('phoneNumber').value;
+        if (userId && phoneNumber) {
+            alert('OTP sent to ' + phoneNumber);
+            document.getElementById('otp').style.display = 'block';
+            document.getElementById('login-btn').style.display = 'block';
+        } else {
+            alert('Please enter valid User ID and Phone Number.');
+        }
+    }
+
+    function verifyOTP() {
+        const otpInput = document.getElementById('otp').value;
+        if (otpInput) {
+            // Assume OTP verification is successful for demo purposes
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('main-screen').classList.add('active');
+            // Set user's personal information for display
+            name = "User"; // Replace with actual name retrieval logic
+            dob = "01/01/2000"; // Replace with actual DOB retrieval logic
+            document.getElementById('display-name').textContent = name;
+            document.getElementById('display-dob').textContent = dob;
+            document.getElementById('display-userId').textContent = userId;
+            document.getElementById('display-phoneNumber').textContent = phoneNumber;
+            document.getElementById('weekly-target').textContent = '0'; // Reset weekly target display
+        } else {
+            alert('Please enter the OTP.');
+        }
+    }
+
+    function showTab(tab) {
+        // Hide all feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        // Show the selected tab
+        document.getElementById(tab + '-tab').classList.add('active');
+    }
+
+    function checkHealth() {
+        const heartRate = Math.floor(Math.random() * (100 - 60 + 1) + 60);
+        const hydration = Math.floor(Math.random() * (100 - 40 + 1) + 40);
+        document.getElementById('heart-rate').textContent = heartRate;
+        document.getElementById('hydration').textContent = hydration;
+    }
+
+    function setWeeklyTarget() {
+        const targetInput = document.getElementById('weekly-target-input').value;
+        if (targetInput) {
+            weeklyTarget = parseInt(targetInput, 10);
+            document.getElementById('weekly-target').textContent = weeklyTarget;
+            alert('Weekly target set to ₹' + weeklyTarget);
+        } else {
+            alert('Please enter a valid target amount.');
+        }
+    }
+
+    function addToWeeklyEarnings(amount) {
+        weeklyEarnings += amount;
+        document.getElementById('weekly-earnings').textContent = weeklyEarnings;
+        alert('Added ₹' + amount + ' to your weekly earnings.');
+    }
+
+    function sendSOS() {
+        alert('SOS signal sent! Help is on the way!');
+    }
+
+    function sendMessage() {
+        const message = document.getElementById('chat-message').value;
+        if (message) {
+            document.getElementById('chatbot-response').textContent += "You: ${message}\n";
+            document.getElementById('chatbot-response').textContent += "Chatbot: How can I assist you further?\n";
+            document.getElementById('chat-message').value = '';
+        } else {
+            alert('Please enter a message.');
+        }
+    }
+</script>
+
+</body>
+</html>
